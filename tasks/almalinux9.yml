@@ -1,0 +1,30 @@
+---
+# tasks file for roles/hostname
+- name: Check hostname
+  become: true
+  command: bash -lc "hostname"
+  register: check_hostname
+  changed_when: false
+
+- name: Debug
+  debug:
+    msg: "{{ check_hostname }}"
+
+- name: Debug
+  debug:
+    msg: "{{ hostname }}"
+
+- name: Before Set hostname
+  become: true
+  hostname:
+    name: "{{ hostname }}"
+  register: set_hostname
+  when: check_hostname.stdout != hostname
+  changed_when: false
+  ignore_errors: true
+
+- name: Set hostname
+  become: true
+  hostname:
+    name: "{{ hostname }}"
+  when: set_hostname is false
